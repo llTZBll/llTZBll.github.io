@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>线性规划问题可视化</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.0/dist/chartjs-plugin-zoom.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-3d@4.0.0/build/index.bundle.min.js"></script>
+
+    <!-- Tailwind配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3b82f6',
+                        secondary: '#10b981',
+                        accent: '#8b5cf6',
+                        neutral: '#1f2937',
+                        'neutral-light': '#f3f4f6',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    }
+                },
+            }
+        }
+    </script>
+
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .card-hover {
+                @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+            }
+            .gradient-bg {
+                background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-neutral min-h-screen flex flex-col">
+    <!-- 导航栏 -->
+    <header class="gradient-bg text-white shadow-md sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fa fa-line-chart text-2xl"></i>
+                <h1 class="text-xl md:text-2xl font-bold text-shadow">线性规划可视化工具</h1>
+            </div>
+            <nav>
+                <ul class="flex space-x-6">
+                    <li><a href="#problem" class="hover:text-gray-200 transition-colors">问题描述</a></li>
+                    <li><a href="#solution" class="hover:text-gray-200 transition-colors">最优解</a></li>
+                    <li><a href="#constraints" class="hover:text-gray-200 transition-colors">约束条件</a></li>
+                    <li><a href="#visualization" class="hover:text-gray-200 transition-colors">3D可视化</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="flex-grow container mx-auto px-4 py-8">
+        <!-- 问题描述部分 -->
+        <section id="problem" class="mb-12">
+            <div class="bg-white rounded-xl shadow-md p-6 md:p-8 card-hover">
+                <h2 class="text-2xl md:text-3xl font-bold text-neutral mb-6 flex items-center">
+                    <i class="fa fa-question-circle text-primary mr-2"></i>
+                    问题描述
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-xl font-semibold text-primary mb-4">目标函数</h3>
+                        <p class="text-lg mb-2">最大化: <span class="font-bold">Z = X₁ + 0.8X₂ + 1.2X₃</span></p>
+                        <p class="text-gray-600">这表示我们希望找到X₁、X₂和X₃的最优值，使得Z的值最大。</p>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-semibold text-primary mb-4">约束条件</h3>
+                        <ul class="space-y-2 text-lg">
+                            <li>X₁ - X₂ + X₃ ≤ 30</li>
+                            <li>3X₁ + 2X₂ + 4X₃ ≤ 42</li>
+                            <li>3X₁ + 2X₂ ≤ 30</li>
+                            <li>X₁, X₂, X₃ ≥ 0</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 最优解部分 -->
+        <section id="solution" class="mb-12">
+            <div class="bg-white rounded-xl shadow-md p-6 md:p-8 card-hover">
+                <h2 class="text-2xl md:text-3xl font-bold text-neutral mb-6 flex items-center">
+                    <i class="fa fa-check-circle text-secondary mr-2"></i>
+                    最优解
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-primary/10 rounded-lg p-5 text-center transform transition-all duration-300 hover:scale-105">
+                        <h3 class="text-lg font-semibold text-primary mb-2">X₁</h3>
+                        <p class="text-3xl font-bold">0.0000</p>
+                    </div>
+                    <div class="bg-primary/10 rounded-lg p-5 text-center transform transition-all duration-300 hover:scale-105">
+                        <h3 class="text-lg font-semibold text-primary mb-2">X₂</h3>
+                        <p class="text-3xl font-bold">15.0000</p>
+                    </div>
+                    <div class="bg-primary/10 rounded-lg p-5 text-center transform transition-all duration-300 hover:scale-105">
+                        <h3 class="text-lg font-semibold text-primary mb-2">X₃</h3>
+                        <p class="text-3xl font-bold">3.0000</p>
+                    </div>
+                </div>
+                <div class="mt-8 bg-secondary/10 rounded-lg p-6 text-center">
+                    <h3 class="text-xl font-semibold text-secondary mb-2">目标函数最大值</h3>
+                    <p class="text-4xl font-bold">Z = 15.6000</p>
+                    <p class="mt-2 text-gray-600">当X₁=0，X₂=15，X₃=3时取得最大值</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 约束条件部分 -->
+        <section id="constraints" class="mb-12">
+            <div class="bg-white rounded-xl shadow-md p-6 md:p-8 card-hover">
+                <h2 class="text-2xl md:text-3xl font-bold text-neutral mb-6 flex items-center">
+                    <i class="fa fa-sliders text-accent mr-2"></i>
+                    约束条件分析
+                </h2>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">约束条件</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">表达式</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">最优解处的值</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-medium text-neutral">约束 1</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">X₁ - X₂ + X₃ ≤ 30</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">-12.0000</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                        非有效
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-medium text-neutral">约束 2</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">3X₁ + 2X₂ + 4X₃ ≤ 42</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">42.0000</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                        有效
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-medium text-neutral">约束 3</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">3X₁ + 2X₂ ≤ 30</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">30.0000</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                        有效
+                                    </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="mt-6">
+                    <h3 class="text-lg font-semibold text-accent mb-3">有效约束说明</h3>
+                    <p class="text-gray-700 mb-4">有效约束是指在最优解处恰好满足等式的约束条件。在这个问题中：</p>
+                    <ul class="list-disc list-inside space-y-2 text-gray-700">
+                        <li><span class="font-medium">约束 2</span> (3X₁ + 2X₂ + 4X₃ ≤ 42) 在最优解处等于42，是有效约束。</li>
+                        <li><span class="font-medium">约束 3</span> (3X₁ + 2X₂ ≤ 30) 在最优解处等于30，是有效约束。</li>
+                        <li><span class="font-medium">约束 1</span> (X₁ - X₂ + X₃ ≤ 30) 在最优解处等于-12，小于30，因此是非有效约束。</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3D可视化部分 -->
+        <section id="visualization" class="mb-12">
+            <div class="bg-white rounded-xl shadow-md p-6 md:p-8 card-hover">
+                <h2 class="text-2xl md:text-3xl font-bold text-neutral mb-6 flex items-center">
+                    <i class="fa fa-cube text-primary mr-2"></i>
+                    3D可视化
+                </h2>
+                <div class="mb-6">
+                    <p class="text-gray-700 mb-4">下面的3D图表展示了约束条件形成的可行区域和最优解的位置：</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-gray-100 rounded-lg p-4">
+                            <h3 class="text-lg font-semibold text-primary mb-3">交互控制说明</h3>
+                            <ul class="list-disc list-inside space-y-2 text-gray-700">
+                                <li>拖动鼠标可以旋转视图</li>
+                                <li>滚动鼠标滚轮可以缩放视图</li>
+                                <li>按住Shift键拖动可以平移视图</li>
+                                <li>点击图例可以显示/隐藏特定约束平面</li>
+                            </ul>
+                        </div>
+                        <div class="bg-gray-100 rounded-lg p-4">
+                            <h3 class="text-lg font-semibold text-primary mb-3">图表元素说明</h3>
+                            <ul class="list-disc list-inside space-y-2 text-gray-700">
+                                <li><span class="inline-block w-3 h-3 bg-blue-500 rounded-full mr-2"></span>约束1平面</li>
+                                <li><span class="inline-block w-3 h-3 bg-green-500 rounded-full mr-2"></span>约束2平面 (有效)</li>
+                                <li><span class="inline-block w-3 h-3 bg-purple-500 rounded-full mr-2"></span>约束3平面 (有效)</li>
+                                <li><span class="inline-block w-3 h-3 bg-red-500 rounded-full mr-2"></span>最优解点</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="h-[500px] w-full bg-gray-50 rounded-lg shadow-inner overflow-hidden relative">
+                    
+<!-- Three.js -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.158.0/examples/js/controls/OrbitControls.min.js"></script>
+
+<div id="three-container" style="width:100%; height:500px; background:#f9fafb; border-radius:12px;"></div>
+
+<script>
+function create3DVisualization() {
+    const container = document.getElementById("three-container");
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0xf9fafb);
+
+    const camera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 0.1, 1000);
+    camera.position.set(30, 30, 30);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(container.clientWidth, container.clientHeight);
+    container.appendChild(renderer.domElement);
+
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+
+    const axesHelper = new THREE.AxesHelper(20);
+    scene.add(axesHelper);
+
+    function createPlane(a, b, c, d, color) {
+        const geometry = new THREE.PlaneGeometry(40, 40);
+        const material = new THREE.MeshBasicMaterial({ color, side: THREE.DoubleSide, transparent: true, opacity: 0.4 });
+        const plane = new THREE.Mesh(geometry, material);
+        const normal = new THREE.Vector3(a, b, c).normalize();
+        const up = new THREE.Vector3(0, 0, 1);
+        const quaternion = new THREE.Quaternion().setFromUnitVectors(up, normal);
+        plane.applyQuaternion(quaternion);
+        const distance = d / normal.length();
+        plane.position.copy(normal.multiplyScalar(distance));
+        return plane;
+    }
+
+    scene.add(createPlane(1, -1, 1, 30, 0x3b82f6));
+    scene.add(createPlane(3, 2, 4, 42, 0x10b981));
+    scene.add(createPlane(3, 2, 0, 30, 0x8b5cf6));
+
+    const sphereGeometry = new THREE.SphereGeometry(0.6, 32, 32);
+    const sphereMaterial = new THREE.MeshBasicMaterial({ color: 0xef4444 });
+    const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+    sphere.position.set(0, 15, 3);
+    scene.add(sphere);
+
+    function animate() {
+        requestAnimationFrame(animate);
+        controls.update();
+        renderer.render(scene, camera);
+    }
+
+    animate();
+
+    window.addEventListener('resize', () => {
+        camera.aspect = container.clientWidth / container.clientHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(container.clientWidth, container.clientHeight);
+    });
+}
+create3DVisualization();
+</script>
+</body>
+
+</html>
